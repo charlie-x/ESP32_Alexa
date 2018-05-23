@@ -13,6 +13,8 @@
 #include "driver/i2s.h"
 #include "common_component.h"
 
+#define	I2S_PORT	I2S_NUM_0
+
 // static renderer_config_t *recorder_instance = NULL;
 static component_status_t recorder_status = UNINITIALIZED;
 
@@ -30,15 +32,15 @@ void audio_recorder_init()
 	};
 
 	i2s_pin_config_t pin_config_rx = {
-        .bck_io_num = GPIO_NUM_17,
-        .ws_io_num = GPIO_NUM_18,
+        .bck_io_num = GPIO_NUM_14,
+        .ws_io_num = GPIO_NUM_13,
         .data_out_num = I2S_PIN_NO_CHANGE,
         .data_in_num = GPIO_NUM_5
     };
 
-    i2s_driver_install(I2S_NUM_1, &i2s_config, 0, NULL);
-    i2s_set_pin(I2S_NUM_1, &pin_config_rx);
-    i2s_stop(I2S_NUM_1);
+    i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);
+    i2s_set_pin(I2S_PORT, &pin_config_rx);
+    i2s_stop(I2S_PORT);
 }
 
 void audio_recorder_start()
@@ -47,7 +49,7 @@ void audio_recorder_start()
         return;
 
 	recorder_status = RUNNING;
-    i2s_start(I2S_NUM_1);
+    i2s_start(I2S_PORT);
 }
 
 void audio_recorder_stop()
@@ -56,6 +58,6 @@ void audio_recorder_stop()
         return;
 
     recorder_status = STOPPED;
-    i2s_stop(I2S_NUM_1);
+    i2s_stop(I2S_PORT);
 }
 

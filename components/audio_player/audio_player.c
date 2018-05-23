@@ -57,6 +57,17 @@ static int start_decoder_task(player_t *player)
 
         default:
             ESP_LOGE(TAG, "unknown mime type: %d", player->media_stream->content_type);
+            task_func = mp3_decoder_task;
+            task_name = "mp3_decoder_task";
+            stack_depth = 8448;
+		player->media_stream->content_type = AUDIO_MPEG;
+
+            task_func = libfaac_decoder_task;
+            task_name = "libfaac_decoder_task";
+            stack_depth = 5000;
+               player->media_stream->content_type = AUDIO_MP4;
+
+		break;
             return -1;
     }
 

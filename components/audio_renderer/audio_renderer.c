@@ -66,7 +66,7 @@ static void init_i2s(renderer_config_t *config)
     i2s_pin_config_t pin_config = {
             .bck_io_num = GPIO_NUM_26,
             .ws_io_num = GPIO_NUM_25,
-            .data_out_num = GPIO_NUM_22,
+            .data_out_num = GPIO_NUM_16,
             .data_in_num = I2S_PIN_NO_CHANGE
     };
 
@@ -176,6 +176,7 @@ void render_samples(char *buf, uint32_t buf_len, pcm_format_t *buf_desc)
             switch (renderer_instance->bit_depth)
             {
                 case I2S_BITS_PER_SAMPLE_16BIT:
+
                     ; // workaround
 
                     /* low - high / low - high */

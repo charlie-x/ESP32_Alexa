@@ -31,6 +31,9 @@
 #define TAG "event_send_speech"
 
 
+// default id I2S_NUM_1
+#define I2S_PORT I2S_NUM_0
+
 static speech_recognizer_state_t state;
 
 pcm_format_t buf_desc = {
@@ -99,7 +102,7 @@ ssize_t send_speech_read_callback(nghttp2_session *session, int32_t stream_id,
             // read whole block of samples
             int bytes_read = 0;
             while(bytes_read == 0) {
-                bytes_read = i2s_read_bytes(I2S_NUM_1, (char*) buf, buf_length, 0);
+                bytes_read = i2s_read_bytes(I2S_PORT, (char*) buf, buf_length, 0);
             }
 
             //  convert 2x 32 bit stereo -> 1 x 16 bit mono
@@ -115,17 +118,16 @@ ssize_t send_speech_read_callback(nghttp2_session *session, int32_t stream_id,
             bytes_written = samples_read * (I2S_BITS_PER_SAMPLE_16BIT / 8);
 
             // local echo
-            render_samples((char*) buf, bytes_written, &buf_desc);
+           // render_samples((char*) buf, bytes_written, &buf_desc);
 
             rounds++;
-            // TODO: test if if(rounds > 4) is better
             if(rounds > 1) {
                 rounds = 0;
                 yield = true;
             }
 
             bytes_out_total += bytes_written;
-            printf("bytes_out: %d\n", bytes_written);
+//            printf("bytes_out: %d\n", bytes_written);
 
             break;
 

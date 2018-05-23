@@ -27,6 +27,7 @@
 #include "wifi.h"
 #include "app_main.h"
 #include "alexa_public.h"
+//#include "mdns_task.h"
 #ifdef CONFIG_BT_SPEAKER_MODE
 #include "bt_speaker.h"
 #endif
@@ -83,6 +84,9 @@ static void start_wifi()
     /* init wifi */
     initialise_wifi(wifi_event_group);
 
+    /* start mDNS */
+    // xTaskCreatePinnedToCore(&mdns_task, "mdns_task", 2048, wifi_event_group, 5, NULL, 0);
+
     /* Wait for the callback to set the CONNECTED_BIT in the event group. */
     xEventGroupWaitBits(wifi_event_group, CONNECTED_BIT,
                         false, true, portMAX_DELAY);
@@ -93,9 +97,9 @@ static renderer_config_t *create_renderer_config()
     renderer_config_t *renderer_config = calloc(1, sizeof(renderer_config_t));
 
     renderer_config->bit_depth = I2S_BITS_PER_SAMPLE_16BIT;
-    renderer_config->i2s_num = I2S_NUM_0;
+    renderer_config->i2s_num = I2S_NUM_1; // default _0
     renderer_config->sample_rate = 44100;
-    renderer_config->sample_rate_modifier = 1.25;
+    renderer_config->sample_rate_modifier = 1.0;
     renderer_config->output_mode = AUDIO_OUTPUT_MODE;
 
     if(renderer_config->output_mode == I2S_MERUS) {
