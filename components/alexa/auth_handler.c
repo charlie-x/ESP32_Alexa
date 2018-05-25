@@ -29,12 +29,13 @@
 #define TAG "auth_handler"
 
 
-#define REFRESH_TOKEN CONFIG_ALEXA_AUTH_REFRESH_TOKEN
+//#define REFRESH_TOKEN CONFIG_ALEXA_AUTH_REFRESH_TOKEN
 
-#define REFRESH_TOKEN_URI "https://alexa.boeckling.net/auth/refresh/" REFRESH_TOKEN
+//#define REFRESH_TOKEN_URI "https://alexa.boeckling.net/auth/refresh/" REFRESH_TOKEN
 //#define REFRESH_TOKEN_URI "https://meeseeks.nullspacelabs.com/auth/refresh/" REFRESH_TOKEN
 
-static const char refresh_token_uri[1024]= REFRESH_TOKEN_URI;
+extern char refresh_token_uri[1024];
+//= REFRESH_TOKEN_URI;
 
 int auth_recv_callback(nghttp2_session *session, uint8_t flags, int32_t stream_id,
         const uint8_t *data, size_t len, void *user_data)
@@ -122,7 +123,7 @@ void auth_token_refresh(alexa_session_t *alexa_session)
     asio_new_http2_session(
             registry,
             http2_session_auth,
-            REFRESH_TOKEN_URI);
+            refresh_token_uri);
 
     // ret = read_write_loop(http2_session_auth);
     // ESP_LOGI(TAG, "auth_token_refresh event loop finished with %d", ret);

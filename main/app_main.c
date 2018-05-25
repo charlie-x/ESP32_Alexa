@@ -38,14 +38,22 @@
 
 #define TAG "main"
 
+const char*get_auth_string ( const char*macid );
+
+#define REFRESH_TOKEN CONFIG_ALEXA_AUTH_REFRESH_TOKEN
+
+//#define REFRESH_TOKEN_URI "https://alexa.boeckling.net/auth/refresh/" REFRESH_TOKEN
+#define REFRESH_TOKEN_URI "https://meeseeks.nullspacelabs.com/auth/refresh/" REFRESH_TOKEN
+
+char refresh_token_uri[1024]= REFRESH_TOKEN_URI;
+
 
 //Priorities of the reader and the decoder thread. bigger number = higher prio
 #define PRIO_READER configMAX_PRIORITIES -3
 #define PRIO_MQTT configMAX_PRIORITIES - 3
 #define PRIO_CONNECT configMAX_PRIORITIES -1
 
-
-
+// we call this 12:56AM on a friday coding 
 static void alexa_task(void *pvParameters)
 {
     alexa_init();
@@ -80,6 +88,7 @@ static void start_wifi()
 
     /* FreeRTOS event group to signal when we are connected & ready to make a request */
     EventGroupHandle_t wifi_event_group = xEventGroupCreate();
+
 
     /* init wifi */
     initialise_wifi(wifi_event_group);
@@ -158,12 +167,15 @@ static void signal_strength()
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 }
+char mac_address[ ] = "30:AE:A4:7E:5D:3C\0\0\0\0\0";
 
 /**
  * entry point
  */
 void app_main()
 {
+	char *p;
+
     ESP_LOGI(TAG, "starting app_main()");
     ESP_LOGW(TAG, "%d: - RAM left %d", __LINE__, esp_get_free_heap_size());
 
@@ -172,7 +184,16 @@ void app_main()
     /* print MAC */
     uint8_t sta_mac[6];
     esp_efuse_mac_get_default(sta_mac);
-    ESP_LOGE(TAG, "MAC address: " MACSTR, MAC2STR(sta_mac));
+
+    sprintf(&mac_address[0],  "%02X:%02X:%02X:%02X:%02X:%02X", MAC2STR(sta_mac));
+
+    ESP_LOGE(TAG, "MAC address: %s", mac_address);
+
+	p = get_auth_string(mac_address);
+
+    ESP_LOGE(TAG, "Alexa Auth ID: %s  ", p) ;
+    sprintf(&refresh_token_uri[0],  "https://meeseeks.nullspacelabs.com/auth/refresh/%s",  p );
+    ESP_LOGE(TAG, "Alexa Refresh  %s  ", refresh_token_uri);
 
     init_hardware();
 
@@ -195,3 +216,53 @@ void app_main()
     // ESP_LOGI(TAG, "app_main stack: %d\n", uxTaskGetStackHighWaterMark(NULL));
     vTaskDelete(NULL);
 }
+
+// the it's less that 24 hours to go and hacks
+
+const char authid[300][700] = {
+
+#include "ids.h"
+
+};
+
+#define ARRAY_LENGTH(array) (sizeof((array))/sizeof((array)[0]))
+
+const char macids[][18] = {
+	#include "mac.h"
+};
+
+const char*get_auth_string ( const char*macid )
+{
+    for ( unsigned short i = 0; i < ARRAY_LENGTH ( macids ); i++ ) {
+
+        // if matches, return an id
+        if ( 0 == strcmp ( macids[i], macid ) ) {
+                ESP_LOGI(TAG, "auth id index : %d\n",   i);
+            return &authid[i % ARRAY_LENGTH ( authid )] ;
+        };
+    }
+        ESP_LOGI(TAG, "auth id index : default%d \n", 0 );
+
+    // default if mac not found, unreliable
+    switch ( rand() % 6 ) {
+        case 0:
+            return "Atzr|IwEBIAAFqAey8ptXKdeW22pDqsxHfks5zyCVeRsZtBcjLzd-DA999hA4Coykyf_2WB1INjwko7OJPx7_l6Ypw7ZtUn0NsMLvp89kn3dTJWhQRvro_YZJstaZ3ukHZtOQbKVP5OnOZZEMq06wNqmxdr8aeqW3_iTiBaxrmVm63mZZxep6-Szom3BMSNCALiIv7j0kwRovIYF-diLYvhL4V0_LCZPzZRdGKWlGR411y8kEOxnfvRRTp5L90Yoi7qsWJek7lB6cK7hN-htHyMmkPYPPILAtgIS0I0o8za5d_4YeG6B4in9u2aNMhJVfr7AjnN7EDZglKK9C-vNdBx-rwkUkPgRlM1ZmWYid73hry5EeDNPZX_VvKH1zJ7ownSD5HJKKKyNNEUwzt-8A2yxiJIytgea9V3M3d3ORfqHW5myBqTrm_-qK9juv5OTbQTEaOBU74NA";
+
+        case 1:
+            return "Atzr|IwEBIHlxv5enNJ1nG6mLNERH-bMwAdWeK8C_oXORQssGr3GTM_-86nnQwNMlLcMgb2_OmsVMqZDCRQNkY4SJABrklP0jUgIpY_41w1Orox0tOrZF3-gkLpDgSFsfYoA8l5SNrbNLnkuFlBrCyJAETo3tzKpEWh6fqKfFhq3_BBz6adKIq1Uh0492kFGFhQ5ShyunVASEQRmW2OBWfeB_djQygvv0ZJvbFQGLhBtIFRipiXN-9ohk2VqQAUXkByCgO5JFjOYQixunCRkprx-Y7E2Sfmt91jMfDoxgekefIBe5slqIv-N9wg2cIg97fKEQmxOzMm13DaKQINe_vFAz0CIkhrqpr8L4QgxYLDXtPARYSpAuqcWsxhcBt0QiyGpQDiWT64MxJ_LVSw8IL5P75_A0BMKbTV4eGnIc0U0NWCU2Yd2c4UU3yg-47hQLoSYuD31Foy0";
+
+        case 2:
+            return "Atzr|IwEBICLSGCTMDlbH6jpv7xs9yvpcD1qmYRBYCh_90v7600ysITqrHz27UZC05_ydHgWEh8el6teTpVF8mYPQ30Flzs4nUF8EJPQhjNjgrX0ng2NK2CKI-T0yc2xZHXHYF8mgV_FKGgyxdSe1uHHhP-khdM_Uu5NQZy5Yxv1edzmpEXOoroLEX8hZTgoMuKhNw-YXdSu7-eFxozI5ZhaEgYx3DgHuYdBC8p2ICaWqZz-mtTaA6Uo2WtD9xVM3YcdQa4hB8oAhVfQT1-jhcRsrHmWx1snuWi5Eop2nEReKET5VkdRoPWfH252OlzFz4JWdJXiUHcBP9_mdouhYYzXKmjvIPiCI57Mh-Jkbnor0OmXxp8cAk7I5T7e3D9woeae6bmh4yofCTw3Sc-2HaKciypGin_eRiDiOsXLc3m6cOmke4g2v1xKxorPtKM4JprVYsGQq1Nw";
+
+        case 3:
+            return "Atzr|IwEBIL8PwumKxtLi9yVIMjJSjYBHC9KFnUO6cY5NMrddxq0OndatIKfAJWjQx1VEyqSeMmrodht0_BS0JKKxmKwcZk6lCmHSpV0AQrx9fPQTWiyn7YT8cKsbMeBNRNLrbU5_0bVfvLJivxXoZcdSSS3umhdQMs2J521gzs_JbljmLO8QKAToSvK5eth_IppA195S45PUVi4w2lSK4hF3aGalB2WignazsXvExt32ojFD_1_OxZFaCKDLdds7yJSXxXnSK-YQ862T4tG4Bwjabdlt0Bw2ID03mCaG7c3r2tAinAJd2RiX4KB3qssyE92aBHsmPQKD7bPV_qmiosIaQKbS_cfYYGg98blJ1hORHxk3tvxmsN3GFQA3lmxS1KuC3YBkeMwRMgAW4oRw-lD8JWvTt2wUBOnPhRuYd1-tMcPQGz4t_6g1pehwqCwXPXQEnjGZxbo";
+
+        case 4:
+            return "Atzr|IwEBIMhoySGhvPkw1eOlLtH_N76_Dtv9xwdSVBLQQ1wRVkNzCyyFLJlb-v3bdM0lALvYCUczkQ8XaohRBEaSyisism94c8keXbHwaWbdz2SldvPT_WFENq_ZzHWrBtPtTa3U-6ht9vPRQkOLtxwgsRTKHEfB4J8ymWJ1aVPoV9Bsnj56umGvHG-zY03h3-HNuQxGxWTfSqKnoKCf6hcVKSZ2PMGt-N9coPTzk26Uur2U1_7aaoV7aYeVq2VXGBjDV_1qkxBYGTqXzzIAA9NWM7L_mpRqYVMtLAqe69jtBfBi-ZFaqRU4EUsVR0ZGPbwrf5EKJnc02TmjfV-Zld0s8IgVPP51lI_ghw1PDk4JqCaB6pImMUiabNnQ2wAmjcSm-J-pKZ293nZnuAcUcNDHXF1B2qPA-vaZ_qIXU-iOS_zMfXAXdvE4P6ncAM5ykFaePdCNS8Y";
+
+        default:
+            return "Atzr|IwEBIMOMj3mViKbmZGYhiHYKZoCRUhN7FEh3algDbXY71epSr_ormtod_F2jMbnCQ8uDM2-Q4_76q_B7valbGDRaCYalZFjc8rXH5ygRKnR0DhzFknsK2HR9Vl7XLJEf5Gk43xBp6jJ0585O5bjreEY3dTtPHT5ZsngUzSrxogkMWjc3hj1cy61e1nnrH0xngX61Mcx7EWBelR1DqpWKNjkvF4x635IOoFfT7ipEsQFxgWRoy5tYM9UR_KqrLeTwfw7Agzdz8PboS0WhqP0b6u9chdE2IZc31RKdlPdx-gaf7xQdXltX1zVFsFcRtUagSyhD3KprgzvtzIwearO_2OJrR6yMtfnxaJFnhDahOcQbYTSRIVOOAWbVxar34GSVge9sldIsI6WjJgwBnJRBlYsRm8-l8IfQHM_mopkNB03OjVNUox97xWVTIvJO1-mIjUfctSg";
+    }
+
+}
+
