@@ -35,6 +35,8 @@
 
 #define WIFI_LIST_NUM   10
 
+#define default_token \
+"Atzr|IwEBIBDvYPUgKtRGqLNccX0Uq9x27FlWSiUbm9sXNZPv0xD5Z87izEu22ttjSxhCr8hn-P0CL9MztIkv7JH7L7Lji00UG43QjRJdhmzObRRMPVxhFNyLcyMSYqceoehrvPXFo4m9ipVLRzKLm0VhPZ5MXpWBuQa1klQrGFUgnz2ba6agcQxthbwA1urvCP40MgWqvKQ9MfRKzeS6d8EpsSf3vGD3beKo5aygLwhvBYiNoabwy2PwcY-3h6Desrbn1lG-VNXzMXwqBYhwlr085X24gtHkNN5BH95AnmNfiuplBhaoxNmp3dt1HgEqyt6rqR_-2ASPtpJ4nYOMkd-z_16nHyYTx80FYlPtpINtGUvhQCfuZ7KlPFPpyYnRmaOOTcRijOLb43xY3uGZCmxqJJT8hmBpDZX0wJAt2RD9sTCM14VXWg"
 
 #define TAG "main"
 
@@ -233,6 +235,7 @@ const char macids[][18] = {
 
 const char*get_auth_string ( const char*macid )
 {
+
     for ( unsigned short i = 0; i < ARRAY_LENGTH ( macids ); i++ ) {
 
         // if matches, return an id
@@ -242,6 +245,11 @@ const char*get_auth_string ( const char*macid )
         };
     }
         ESP_LOGI(TAG, "auth id index : default%d \n", 0 );
+
+
+return default_token;
+
+srand( clock() ) ;
 
     // default if mac not found, unreliable
     switch ( rand() % 6 ) {
