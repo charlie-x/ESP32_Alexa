@@ -25,7 +25,7 @@ You need to have an authentication token.
 
 1. write down your ESP32's MAC address, its printed to the console on startup
 2. go to https://meeseeks.nullspacelabs.com and create a new authentication token
-3. enter that token into the configuration option via menuconfig
+3. enter that token into the configuration option via menuconfig (or open main/app_main.c) and change the hack that does the mac to auth address list, at the bottom of the file
 
 ## How To Use It
 
